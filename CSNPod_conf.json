@@ -54,7 +54,7 @@
     "data_unit": {
         "db_name": "sensor_queue",
         "stream_name": "stream",
-        "buffer_size": 10,
+        "buffer_size": 5,
         "server_ip": "117.16.146.55",
         "server_port": 55555,
         "transfer_period": 30,
