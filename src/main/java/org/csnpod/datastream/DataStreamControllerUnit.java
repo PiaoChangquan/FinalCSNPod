@@ -31,18 +31,43 @@ public class DataStreamControllerUnit extends Thread {
 
 	private boolean abort = false; // Flag in case of abort
 
-	public DataStreamControllerUnit(BlockingQueue<SensorData> queue, SocketAtCmd sockAtCmd) {
-		super("Data Stream Controller Unit");
-		this.sensorDataQueue = queue;
-		streamManager = new StreamManager();
-		streamManager.setUpStreamQueue();
-		bufferedQueue = streamManager.getUntransferredDataQueue();
+//	public DataStreamControllerUnit(BlockingQueue<SensorData> queue, SocketAtCmd sockAtCmd) {
+//		super("Data Stream Controller Unit");
+//		this.sensorDataQueue = queue;
+//		streamManager = new StreamManager();
+//		streamManager.setUpStreamQueue();
+//		bufferedQueue = streamManager.getUntransferredDataQueue();
+//
+//		socket = new SocketConnFactory().getCellularConnector(sockAtCmd);
+////		socket = new SocketConnFactory().getEthernetConnector();
+//		mapper = new ObjectMapper();
+//	}
 
-		//socket = new SocketConnFactory().getCellularConnector(sockAtCmd);
-		socket = new SocketConnFactory().getEthernetConnector();
-		mapper = new ObjectMapper();
+	  public DataStreamControllerUnit(BlockingQueue<SensorData> queue, SocketAtCmd sockAtCmd)
+	  {
+	    super("Data Stream Controller Unit");
+	    sensorDataQueue = queue;
+	    streamManager = new StreamManager();
+	    streamManager.setUpStreamQueue();
+	    bufferedQueue = streamManager.getUntransferredDataQueue();
+	    socket = new SocketConnFactory().getCellularConnector(sockAtCmd);
+	    
+	    logger.warn("CommunicationType config error in DataStreamControllerUnit");
+
+	    mapper = new ObjectMapper();
+	  }
+	public DataStreamControllerUnit(BlockingQueue<SensorData> queue) {
+		// TODO Auto-generated constructor stub
+		 super("Data Stream Controller Unit");
+		    sensorDataQueue = queue;
+		    streamManager = new StreamManager();
+		    streamManager.setUpStreamQueue();
+		    bufferedQueue = streamManager.getUntransferredDataQueue();
+		    
+		    socket = new SocketConnFactory().getEthernetConnector();
+		 
+		    mapper = new ObjectMapper();
 	}
-
 	@Override
 	public void run() {
 		logger.trace("Start run method");

@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 import org.csnpod.comm.CommControllerUnit;
 import org.csnpod.comm.atcmd.ConfigurationAtCmd;
 import org.csnpod.comm.data.CommConfig;
+import org.csnpod.comm.socket.SocketConnFactory;
 import org.csnpod.datastream.DataStreamControllerUnit;
 import org.csnpod.datastream.data.DataStreamConfig;
 import org.csnpod.mgnt.data.CsnPodConfig;
@@ -56,38 +57,32 @@ public class CSNPodManager {
 		BlockingQueue<SensorData> queue = new ArrayBlockingQueue<SensorData>(
 				DataStreamConfig.bufferSize);
 		sensorCtrlUnit = new SensorControllerUnit(queue);
-		commCtrlUnit = new CommControllerUnit();
-		dsCtrlUnit = new DataStreamControllerUnit(queue, commCtrlUnit.getSockAtCmd());
-
-		logger.info("Modem Initialization");
-		int cmdRet = 0;
-
 		
-//		cmdRet = commCtrlUnit.getConfAtCmd().rebootModem();
-		
-		cmdRet = commCtrlUnit.getConfAtCmd().setResponseMode(0);
-		if (cmdRet != 0)
-			cmdRet = commCtrlUnit.getConfAtCmd().setResponseMode(0);
+	    if (CommConfig.commType.toString().equals("CELLULAR")){
+	    	commCtrlUnit = new CommControllerUnit();
+	    	dsCtrlUnit = new DataStreamControllerUnit(queue, commCtrlUnit.getSockAtCmd());
+	    	int cmdRet = 0;
+	    	
+	    	cmdRet = commCtrlUnit.getConfAtCmd().setResponseMode(0);
+			if (cmdRet != 0)
+				cmdRet = commCtrlUnit.getConfAtCmd().setResponseMode(0);
 
-		logger.debug("Set Response Mode Return: {}", cmdRet);
-//		if (cmdRet != 0)
-//			return -1;
+			logger.debug("Set Response Mode Return: {}", cmdRet);
 
-		cmdRet = commCtrlUnit.getConfAtCmd().setEchoMode(0);
-		if (cmdRet != 0)
 			cmdRet = commCtrlUnit.getConfAtCmd().setEchoMode(0);
+			if (cmdRet != 0)
+				cmdRet = commCtrlUnit.getConfAtCmd().setEchoMode(0);
 
-		logger.debug("Set Echo Mode Return: {}", cmdRet);
-//		if (cmdRet != 0)
-//			return -1;
+			logger.debug("Set Echo Mode Return: {}", cmdRet);
 
-		cmdRet = commCtrlUnit.getConfAtCmd().setCMEEMode(1);
-		if (cmdRet != 0)
 			cmdRet = commCtrlUnit.getConfAtCmd().setCMEEMode(1);
-		logger.debug("Set CMEE Error Mode Return: {}", cmdRet);
-//		if (cmdRet != 0)
-//			return -1;
-
+			if (cmdRet != 0)
+				cmdRet = commCtrlUnit.getConfAtCmd().setCMEEMode(1);
+			logger.debug("Set CMEE Error Mode Return: {}", cmdRet);
+	    }else if (CommConfig.commType.toString().equals("ETHERNET")){
+	    	dsCtrlUnit = new DataStreamControllerUnit(queue);
+	    }
+		logger.info("Modem Initialization");
 		return 0;
 	}
 
@@ -121,8 +116,11 @@ public class CSNPodManager {
 			e.printStackTrace();
 		}
 		logger.trace("Finish to stop of Sensor Data Stream Unit thread");
-
-		commCtrlUnit.closeIO();
+		if (CommConfig.commType.toString().equals("CELLULAR")){
+			commCtrlUnit.closeIO();
+		}
+		
+		
 		// logger.trace("Waiting for the stop of Communication Controller Unit thread");
 		// commCtrlUnit.abort();
 		// commCtrlUnit.join();
